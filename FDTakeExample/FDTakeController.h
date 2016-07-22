@@ -61,6 +61,11 @@
 @property (strong, nonatomic) UITabBar *tabBar;
 
 /**
+ * Whether to allow selecting existing media
+ */
+@property (nonatomic, assign) BOOL allowsSelectFromLibrary;
+
+/**
  * Whether to allow editing the photo
  */
 @property (nonatomic, assign) BOOL allowsEditingPhoto;

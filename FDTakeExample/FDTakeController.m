@@ -90,13 +90,15 @@ static NSString * const kStringsTableName = @"FDTake";
         [self.sources addObject:@(UIImagePickerControllerSourceTypeCamera)];
         [self.buttonTitles addObject:[self textForButtonWithTitle:kTakePhotoKey]];
     }
-    if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypePhotoLibrary]) {
-        [self.sources addObject:@(UIImagePickerControllerSourceTypePhotoLibrary)];
-        [self.buttonTitles addObject:[self textForButtonWithTitle:kChooseFromLibraryKey]];
-    }
-    else if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeSavedPhotosAlbum]) {
-        [self.sources addObject:@(UIImagePickerControllerSourceTypeSavedPhotosAlbum)];
-        [self.buttonTitles addObject:[self textForButtonWithTitle:kChooseFromPhotoRollKey]];
+    if(self.allowsSelectFromLibrary){
+        if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypePhotoLibrary]) {
+            [self.sources addObject:@(UIImagePickerControllerSourceTypePhotoLibrary)];
+            [self.buttonTitles addObject:[self textForButtonWithTitle:kChooseFromLibraryKey]];
+        }
+        else if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeSavedPhotosAlbum]) {
+            [self.sources addObject:@(UIImagePickerControllerSourceTypeSavedPhotosAlbum)];
+            [self.buttonTitles addObject:[self textForButtonWithTitle:kChooseFromPhotoRollKey]];
+        }
     }
     [self _setUpActionSheet];
     [self.actionSheet setTag:kPhotosActionSheetTag];
@@ -241,11 +243,11 @@ static NSString * const kStringsTableName = @"FDTake";
     }
     // Handle a movie capture
     else if (CFStringCompare ((CFStringRef) mediaType, kUTTypeMovie, 0)
-        == kCFCompareEqualTo) {
+             == kCFCompareEqualTo) {
         if ([self.delegate respondsToSelector:@selector(takeController:gotVideo:withInfo:)])
             [self.delegate takeController:self gotVideo:info[UIImagePickerControllerMediaURL] withInfo:info];
     }
-
+    
     [picker dismissViewControllerAnimated:YES completion:nil];
     self.imagePicker = nil;
 }
@@ -256,7 +258,7 @@ static NSString * const kStringsTableName = @"FDTake";
     [[UIApplication sharedApplication] setStatusBarHidden:YES];
     [picker dismissViewControllerAnimated:YES completion:nil];
     self.imagePicker = nil;
-
+    
     if ([self.delegate respondsToSelector:@selector(takeController:didCancelAfterAttempting:)])
         [self.delegate takeController:self didCancelAfterAttempting:YES];
 }
@@ -328,7 +330,7 @@ static NSString * const kStringsTableName = @"FDTake";
         [[[UIAlertView alloc] initWithTitle:nil
                                     message:str
                                    delegate:self
-                          cancelButtonTitle:nil
+                          cancelButtonTitle:@"OK"
                           otherButtonTitles:nil] show];
     }
 }
@@ -352,22 +354,22 @@ static NSString * const kStringsTableName = @"FDTake";
 
 - (NSString*)textForButtonWithTitle:(NSString*)title
 {
-	if ([title isEqualToString:kTakePhotoKey])
-		return self.takePhotoText ?: FDLOCALIZATION(kTakePhotoKey, @"Option to take photo using camera");
-	else if ([title isEqualToString:kTakeVideoKey])
-		return self.takeVideoText ?: FDLOCALIZATION(kTakeVideoKey, @"Option to take video using camera");
-	else if ([title isEqualToString:kChooseFromLibraryKey])
-		return self.chooseFromLibraryText ?: FDLOCALIZATION(kChooseFromLibraryKey, @"Option to select photo/video from library");
-	else if ([title isEqualToString:kChooseFromPhotoRollKey])
-		return self.chooseFromPhotoRollText ?: FDLOCALIZATION(kChooseFromPhotoRollKey, @"Option to select photo from photo roll");
-	else if ([title isEqualToString:kCancelKey])
-		return self.cancelText ?: FDLOCALIZATION(kCancelKey, @"Decline to proceed with operation");
-	else if ([title isEqualToString:kNoSourcesKey])
-		return self.noSourcesText ?: FDLOCALIZATION(kNoSourcesKey, @"There are no sources available to select a photo");
-	
-	NSAssert(NO, @"Invalid title passed to textForButtonWithTitle:");
-	
-	return nil;
+    if ([title isEqualToString:kTakePhotoKey])
+        return self.takePhotoText ?: FDLOCALIZATION(kTakePhotoKey, @"Option to take photo using camera");
+    else if ([title isEqualToString:kTakeVideoKey])
+        return self.takeVideoText ?: FDLOCALIZATION(kTakeVideoKey, @"Option to take video using camera");
+    else if ([title isEqualToString:kChooseFromLibraryKey])
+        return self.chooseFromLibraryText ?: FDLOCALIZATION(kChooseFromLibraryKey, @"Option to select photo/video from library");
+    else if ([title isEqualToString:kChooseFromPhotoRollKey])
+        return self.chooseFromPhotoRollText ?: FDLOCALIZATION(kChooseFromPhotoRollKey, @"Option to select photo from photo roll");
+    else if ([title isEqualToString:kCancelKey])
+        return self.cancelText ?: FDLOCALIZATION(kCancelKey, @"Decline to proceed with operation");
+    else if ([title isEqualToString:kNoSourcesKey])
+        return self.noSourcesText ?: FDLOCALIZATION(kNoSourcesKey, @"There are no sources available to select a photo");
+    
+    NSAssert(NO, @"Invalid title passed to textForButtonWithTitle:");
+    
+    return nil;
 }
 
 #pragma mark - Localization from bundle
@@ -390,7 +392,7 @@ static inline NSString * FDLOCALIZATION(NSString *key, NSString *comment) {
 #pragma mark - UINavigationControllerDelegate
 
 -(void)navigationController:(UINavigationController *)navigationController willShowViewController:(UIViewController *)viewController animated:(BOOL)animated{
-
+    
 }
 
 @end
