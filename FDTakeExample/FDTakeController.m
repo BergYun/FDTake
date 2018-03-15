@@ -195,6 +195,9 @@ static NSString * const kStringsTableName = @"FDTake";
         }
         else {
             // On iPhone use full screen presentation.
+            if(self.presentingViewController.presentingViewController){
+				self.imagePicker.modalPresentationStyle = UIModalPresentationOverFullScreen;
+			}
             [[self presentingViewController] presentViewController:self.imagePicker animated:YES completion:nil];
         }
     }
